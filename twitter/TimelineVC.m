@@ -174,7 +174,6 @@
 }
 
 - (void) refreshMe: (UIRefreshControl *)refresh;{
-    self.tweets = nil;
     [self reload];
     
     [refresh endRefreshing];

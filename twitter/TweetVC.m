@@ -71,7 +71,6 @@
             self.retweetLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numRetweets-1];
         else
             self.retweetLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numRetweets];
-        self.retweetLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numRetweets];
 
     } else {
         self.retweetButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
