@@ -94,8 +94,11 @@
         params = @{ @"status": self.tweet.text};
 
     
+    __weak NewVC *weakself = self;
+    
     [client postPath:@"https://api.twitter.com/1.1/statuses/update.json" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSLog(@"Published tweet");
+        [weakself.delegate reloadTwitterData];
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
     }];

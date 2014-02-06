@@ -12,7 +12,7 @@
 #import "Tweet.h"
 #import "NewVC.h"
 
-@interface TimelineVC () <TweetVCDelegate>
+@interface TimelineVC () <TweetVCDelegate, NewVCDelegate>
 
 @property (nonatomic, strong) NSMutableArray *tweets;
 
@@ -182,12 +182,14 @@
 
 - (void)onNewButton {
     NewVC *newVC = [[NewVC alloc] init];
+    newVC.delegate = self;
     [self.navigationController pushViewController:newVC animated:YES];
 }
 
 - (void)onReplyButton:(UIButton *) sender
 {
     NewVC *replyVC = [[NewVC alloc] init];
+    replyVC.delegate = self;
     Tweet *tweet = self.tweets[sender.tag];
     replyVC.replyText = [NSString stringWithFormat:@"@%@ ", tweet.screen_name];
     replyVC.replyID = [NSString stringWithFormat:@"%@", tweet.numID];

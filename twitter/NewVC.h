@@ -9,6 +9,10 @@
 #import <UIKit/UIKit.h>
 #import <UIImageView+AFNetworking.h>
 
+@protocol NewVCDelegate <NSObject>
+-(void)reloadTwitterData;
+@end
+
 @interface NewVC : UIViewController <UITextViewDelegate>
 @property (weak, nonatomic) IBOutlet UIImageView *profilePic;
 @property (weak, nonatomic) IBOutlet UILabel *name;
@@ -19,4 +23,5 @@
 @property (nonatomic, strong) NSString *replyText;
 @property (nonatomic, strong) NSString *replyID;
 
+@property (nonatomic, weak) id<NewVCDelegate> delegate;
 @end
