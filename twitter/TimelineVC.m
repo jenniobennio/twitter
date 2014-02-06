@@ -31,7 +31,7 @@
     self = [super initWithStyle:style];
     if (self) {
         self.title = @"Home";
-        
+        self.tweets = [[NSMutableArray alloc] init];
         // [self reload];
     }
     return self;
@@ -56,12 +56,6 @@
     
     [self reload];
 
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    // [self reload];
 }
 
 #pragma mark - Table view data source
@@ -139,9 +133,10 @@
         cell.retweetButton.titleLabel.font = [UIFont systemFontOfSize:12.0f];
     
     // Infinite loading
-    /*TwitterClient *client
+//    TwitterClient *client
     if (indexPath.row > (self.tweets.count - 5)) {
-	}*/
+        [self reloadWithAppend];
+    }
     
     return cell;
 }
@@ -197,9 +192,22 @@
 }
 
 - (void)reload {
-    [[TwitterClient instance] homeTimelineWithCount:20 sinceId:0 maxId:0 success:^(AFHTTPRequestOperation *operation, id response) {
+    [[TwitterClient instance] homeTimelineWithCount:self.tweets.count sinceId:nil maxId:nil success:^(AFHTTPRequestOperation *operation, id response) {
         NSLog(@"%@", response);
         self.tweets = [Tweet tweetsWithArray:response];
+        [self.tableView reloadData];
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        // Do nothing
+        NSLog(@"ERROR: %@", error);
+    }];
+}
+
+- (void)reloadWithAppend {
+    Tweet *lastTweet = self.tweets[self.tweets.count-1];
+    NSString *maxId = [NSString stringWithFormat:@"%lld",[lastTweet.numID longLongValue] - 1];
+    [[TwitterClient instance] homeTimelineWithCount:20 sinceId:nil maxId:maxId success:^(AFHTTPRequestOperation *operation, id response) {
+        NSLog(@"%@", response);
+        [self.tweets addObjectsFromArray:[Tweet tweetsWithArray:response]];
         [self.tableView reloadData];
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         // Do nothing
