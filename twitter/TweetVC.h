@@ -10,6 +10,11 @@
 #import "Tweet.h"
 #import <UIImageView+AFNetworking.h>
 
+
+@protocol TweetVCDelegate <NSObject>
+-(void)reloadTwitterData;
+@end
+
 @interface TweetVC : UIViewController
 @property (weak, nonatomic) IBOutlet UIImageView *profilePic;
 @property (weak, nonatomic) IBOutlet UILabel *nameLabel;
@@ -20,6 +25,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *favoriteLabel;
 
 @property (nonatomic, strong) Tweet *tweet;
-
+@property (nonatomic, weak) id<TweetVCDelegate> delegate;
 
 @end

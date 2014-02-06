@@ -20,20 +20,22 @@
 @property (nonatomic, strong, readonly) NSString *screen_name;
 @property (nonatomic, strong, readonly) NSString *picURL;
 @property (nonatomic, strong, readonly) NSString *createdDate;
-@property (nonatomic, strong, readonly) NSNumber *numID;
+@property (nonatomic, strong, readonly) NSString *numID;
 @property (nonatomic, strong) NSString *retweetID;
-
+@property (nonatomic, strong) NSString *origName;
+@property (nonatomic, strong) NSString *origHandle;
 
 + (NSMutableArray *)tweetsWithArray:(NSArray *)array;
 - (NSString *)formattedDate;
 - (NSString *)longDate;
-- (void)onRetweet:(BOOL)retweet;
-- (void)onFavorite:(BOOL)favorite;
+
+- (void)onRetweet;
+- (void)onFavorite;
 
 - (BOOL) isRetweet;
-- (void)setIsRetweet:(BOOL)value;
+- (void)setIsRetweet:(BOOL)isRetweet;
 - (BOOL) isFavorite;
-- (void)setIsFavorite:(BOOL)value;
+- (void)setIsFavorite:(BOOL)isFavorite;
 
 - (int) numRetweets;
 - (void)setNumRetweets:(int)numRetweets;

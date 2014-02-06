@@ -65,6 +65,13 @@
     return textView.text.length + (text.length - range.length) <= 140;
 }
 
+
+- (void)textViewDidBeginEditing:(UITextView *)textView
+{
+    self.charLeftCount.text = [NSString stringWithFormat:@"%d", 140-textView.text.length];
+}
+
+
 - (void)textViewDidChange:(UITextView *)textView
 {
     self.charLeftCount.text = [NSString stringWithFormat:@"%d", 140-textView.text.length];

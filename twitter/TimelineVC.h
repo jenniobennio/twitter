@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "TweetCell.h"
 
 @interface TimelineVC : UITableViewController
 

@@ -9,9 +9,10 @@
 #import "TimelineVC.h"
 #import "TweetCell.h"
 #import "TweetVC.h"
+#import "Tweet.h"
 #import "NewVC.h"
 
-@interface TimelineVC ()
+@interface TimelineVC () <TweetVCDelegate>
 
 @property (nonatomic, strong) NSMutableArray *tweets;
 
@@ -31,7 +32,7 @@
     if (self) {
         self.title = @"Home";
         
-        [self reload];
+        // [self reload];
     }
     return self;
 }
@@ -60,7 +61,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [self reload];
+    // [self reload];
 }
 
 #pragma mark - Table view data source
@@ -79,9 +80,13 @@
 {
     Tweet *tweet = self.tweets[indexPath.row];
     CGFloat height = [self textViewHeightForAttributedText:[[NSAttributedString alloc] initWithString:tweet.text] andWidth:240];
-    if (height > 0)
-        return height + 50;
-    else
+    if (height > 0) {
+        // Add more space if it was re-tweeted
+        if (tweet.origName)
+            return height + 70;
+        else
+            return height + 50;
+    } else
         return 100;
 }
 
@@ -100,22 +105,34 @@
     Tweet *tweet = self.tweets[indexPath.row];
     
     cell.tweet = tweet;
-    cell.nameLabel.text = tweet.name;
-    cell.handleLabel.text = [NSString stringWithFormat:@"@%@", tweet.screen_name];
     cell.tweetLabel.text = tweet.text;
     [cell.profilePic setImageWithURL:[NSURL URLWithString:tweet.picURL]];
     cell.timeLabel.text = [tweet formattedDate];
     
-    // These are not in the User Stories, so do later
-    cell.replyButton.hidden = YES;
+    NSString *origName = tweet.origName;
+    if (origName) {
+        cell.retweetLabel.text = [NSString stringWithFormat:@"@%@ retweeted", tweet.screen_name];
+        cell.nameLabel.text = tweet.origName;
+        cell.handleLabel.text = [NSString stringWithFormat:@"@%@", tweet.origHandle];
+    }
+    else {
+        cell.retweetLabel.text = @"";
+        cell.nameLabel.text = tweet.name;
+        cell.handleLabel.text = [NSString stringWithFormat:@"@%@", tweet.screen_name];
+    }
     
-    cell.favoriteButton.hidden = YES;
+    // These are not in the User Stories, so do later
+    // cell.replyButton.hidden = YES;
+    cell.replyButton.tag = indexPath.row;
+    [cell.replyButton addTarget:self action:@selector(onReplyButton:) forControlEvents:UIControlEventTouchUpInside];
+    
+    // cell.favoriteButton.hidden = YES;
     if (tweet.isFavorite)
         cell.favoriteButton.titleLabel.font = [UIFont boldSystemFontOfSize:12.0f];
     else
         cell.favoriteButton.titleLabel.font = [UIFont systemFontOfSize:12.0f];
     
-    cell.retweetButton.hidden = YES;
+    // cell.retweetButton.hidden = YES;
     if (tweet.isRetweet)
         cell.retweetButton.titleLabel.font = [UIFont boldSystemFontOfSize:12.0f];
     else
@@ -135,8 +152,14 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     TweetVC *tweetVC = [[TweetVC alloc] initWithNibName:@"TweetVC" bundle:nil];
     tweetVC.tweet = [self.tweets objectAtIndex:indexPath.row];
+    tweetVC.delegate = self;
     [self.navigationController pushViewController:tweetVC animated:YES];
     
+}
+
+#pragma mark - TweetVCDelegate
+- (void)reloadTwitterData {
+    [self reload];
 }
 
 /*
@@ -162,15 +185,24 @@
     [self.navigationController pushViewController:newVC animated:YES];
 }
 
+- (void)onReplyButton:(UIButton *) sender
+{
+    NewVC *replyVC = [[NewVC alloc] init];
+    Tweet *tweet = self.tweets[sender.tag];
+    replyVC.replyText = [NSString stringWithFormat:@"@%@ ", tweet.screen_name];
+    replyVC.replyID = [NSString stringWithFormat:@"%@", tweet.numID];
+    [self.navigationController pushViewController:replyVC animated:YES];
+}
+
 - (void)reload {
     [[TwitterClient instance] homeTimelineWithCount:20 sinceId:0 maxId:0 success:^(AFHTTPRequestOperation *operation, id response) {
         NSLog(@"%@", response);
         self.tweets = [Tweet tweetsWithArray:response];
+        [self.tableView reloadData];
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         // Do nothing
-        NSLog(@"ERROR");
+        NSLog(@"ERROR: %@", error);
     }];
-    [self.tableView reloadData];
 }
 
 - (void) refreshMe: (UIRefreshControl *)refresh;{

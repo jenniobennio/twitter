@@ -58,45 +58,46 @@
         self.retweetButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
 }
 
+-(void) viewWillDisappear:(BOOL)animated {
+    if ([self.navigationController.viewControllers indexOfObject:self]==NSNotFound) {
+        [self.delegate reloadTwitterData];
+    }
+    [super viewWillDisappear:animated];
+}
+
 - (IBAction)onReply:(id)sender
 {
     [self onReplyButton];
 }
 
 - (IBAction)onRetweet:(id)sender {
-    if (self.retweetButton.titleLabel.font == [UIFont boldSystemFontOfSize:15.0f]) {
-        self.retweetButton.titleLabel.font = [UIFont systemFontOfSize:15.0f];
-        [self.tweet onRetweet:YES];
-        if (self.tweet.isRetweet)
-            self.retweetLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numRetweets-1];
-        else
-            self.retweetLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numRetweets];
+    if (self.tweet.isRetweet) { //self.retweetButton.titleLabel.font == [UIFont boldSystemFontOfSize:15.0f]) {
+        [self.tweet onRetweet];
+        if (!self.tweet.isRetweet)
+            self.retweetButton.titleLabel.font = [UIFont systemFontOfSize:15.0f];
+        self.retweetLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numRetweets];
+
     } else {
-        self.retweetButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
-        [self.tweet onRetweet:NO];
+        [self.tweet onRetweet];
         if (self.tweet.isRetweet)
-            self.retweetLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numRetweets];
-        else
-            self.retweetLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numRetweets+1];
+            self.retweetButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
+        self.retweetLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numRetweets];
     }
 }
 
 - (IBAction)onFavorite:(id)sender {
-    if (self.favoriteButton.titleLabel.font == [UIFont boldSystemFontOfSize:15.0f]) {
-        self.favoriteButton.titleLabel.font = [UIFont systemFontOfSize:15.0f];
-        [self.tweet onFavorite:YES];
-        if (self.tweet.isFavorite)
-            self.favoriteLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numFavorites-1];
-        else
-            self.favoriteLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numFavorites];
+    if (self.tweet.isFavorite) { //self.favoriteButton.titleLabel.font == [UIFont boldSystemFontOfSize:15.0f]) {
+        [self.tweet onFavorite];
+        if (!self.tweet.isFavorite)
+            self.favoriteButton.titleLabel.font = [UIFont systemFontOfSize:15.0f];
+        self.favoriteLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numFavorites];
+
 
     } else {
-        self.favoriteButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
-        [self.tweet onFavorite:NO];
+        [self.tweet onFavorite];
         if (self.tweet.isFavorite)
-            self.favoriteLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numFavorites];
-        else
-            self.favoriteLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numFavorites+1];
+            self.favoriteButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
+        self.favoriteLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numFavorites];
     }
 }
 

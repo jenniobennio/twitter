@@ -26,8 +26,22 @@
     return [[self.data valueOrNilForKeyPath:@"user"] valueOrNilForKeyPath:@"profile_image_url"];
 }
 
+- (NSString *)numID {
+    return [self.data valueOrNilForKeyPath:@"id_str"];
+}
+
 - (NSString *)createdDate {
     return [self.data valueOrNilForKeyPath:@"created_at"];
+}
+
+- (NSString *)origName {
+    NSDictionary *retweeterInfo = [[self.data valueOrNilForKeyPath:@"retweeted_status"] valueOrNilForKeyPath:@"user"];
+    return [retweeterInfo valueOrNilForKeyPath:@"name"];
+}
+
+- (NSString *)origHandle {
+    NSDictionary *retweeterInfo = [[self.data valueOrNilForKeyPath:@"retweeted_status"] valueOrNilForKeyPath:@"user"];
+    return [retweeterInfo valueOrNilForKeyPath:@"screen_name"];
 }
 
 - (NSString *)formattedDate {
@@ -48,7 +62,6 @@
             case 1: return @"1h";
             case 0: {
                 int minutesSinceDate = (int)(timeSinceDate / 60.0);
-                /* etc, etc */
                 return [NSString stringWithFormat:@"%dm", minutesSinceDate];
                 break;
             }
@@ -72,7 +85,8 @@
 }
 
 - (int)numRetweets {
-    _numRetweets = [[self.data valueOrNilForKeyPath:@"retweet_count"] intValue];
+    if (!_numRetweets)
+        _numRetweets = [[self.data valueOrNilForKeyPath:@"retweet_count"] intValue];
     return _numRetweets;
 }
 - (void)setNumRetweets:(int)numRetweets {
@@ -80,15 +94,17 @@
 }
 
 - (BOOL)isRetweet {
-    _isRetweet = [[self.data valueOrNilForKeyPath:@"retweeted"] boolValue];
+    if (!_isRetweet)
+        _isRetweet = [[self.data valueOrNilForKeyPath:@"retweeted"] boolValue];
     return _isRetweet;
 }
-- (void)setIsRetweet:(BOOL)value {
-    _isRetweet = value;
+- (void)setIsRetweet:(BOOL)isRetweet {
+    _isRetweet = isRetweet;
 }
 
 - (int)numFavorites {
-    _numFavorites = [[self.data valueOrNilForKeyPath:@"favorite_count"] intValue];
+    if (!_numFavorites)
+        _numFavorites = [[self.data valueOrNilForKeyPath:@"favorite_count"] intValue];
     return _numFavorites;
 }
 - (void)setNumFavorites:(int)numFavorites {
@@ -96,77 +112,79 @@
 }
 
 - (BOOL)isFavorite {
-    _isFavorite = [[self.data valueOrNilForKeyPath:@"favorited"] boolValue];
+    if (!_isFavorite)
+        _isFavorite = [[self.data valueOrNilForKeyPath:@"favorited"] boolValue];
     return _isFavorite;
 }
-- (void)setIsFavorite:(BOOL)value {
-    _isFavorite = value;
+- (void)setIsFavorite:(BOOL)isFavorite {
+    _isFavorite = isFavorite;
 }
 
-- (void)onRetweet:(BOOL)retweet {
+- (void)onRetweet {
     TwitterClient *client = [TwitterClient instance];
 
-    if (retweet) {
-        _isRetweet = NO;
-        _numRetweets--;
+    if (self.isRetweet) {
+        self.isRetweet = NO;
+        self.numRetweets--;
+        
+        /*if (!self.retweetID)
+            self.retweetID = self.numID;*/
         
         [client postPath:[NSString stringWithFormat:@"1.1/statuses/destroy/%@.json", self.retweetID] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
             NSLog(@"Un-Retweet");
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"Error: %@ %@", error, operation);
-            _isRetweet = YES;
-            _numRetweets++;
+            self.isRetweet = YES;
+            self.numRetweets++;
         }];
     } else {
-        _isRetweet = YES;
-        _numRetweets++;
+        self.isRetweet = YES;
+        self.numRetweets++;
         
         [client postPath:[NSString stringWithFormat:@"1.1/statuses/retweet/%@.json", self.numID] parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            self.retweetID = [NSString stringWithFormat:@"%@", [responseObject valueOrNilForKeyPath:@"id_str"]];
+            self.retweetID = [responseObject valueOrNilForKeyPath:@"id_str"];
             NSLog(@"Retweet");
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"Error: %@ %@", error, operation);
-            _isRetweet = NO;
-            _numRetweets--;
+            self.isRetweet = NO;
+            self.numRetweets--;
         }];
-        
     }
+    
+    NSLog(@"Retweet details: %d %d", self.isRetweet, self.numRetweets);
 }
 
-- (void)onFavorite:(BOOL)favorite {
+- (void)onFavorite {
     TwitterClient *client = [TwitterClient instance];
     id params = @{ @"id": self.numID };
     
-    if (favorite) {
-        _isFavorite = NO;
-        _numFavorites--;
+    if (self.isFavorite) {
+        self.isFavorite = NO;
+        self.numFavorites--;
 
         [client postPath:@"1.1/favorites/destroy.json" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
             NSLog(@"Un-Favorite");
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"Error: %@ %@", error, operation);
-            _isFavorite = YES;
-            _numFavorites++;
+            self.isFavorite = YES;
+            self.numFavorites++;
         }];
     } else {
-        _isFavorite = YES;
-        _numFavorites++;
+        self.isFavorite = YES;
+        self.numFavorites++;
 
         [client postPath:@"1.1/favorites/create.json" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
             NSLog(@"Favorite");
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"Error: %@ %@", error, operation);
-            _isFavorite = NO;
-            _numFavorites--;
+            self.isFavorite = NO;
+            self.numFavorites--;
         }];
-        
     }
-
+    
+    NSLog(@"Favorite details: %d %d", self.isFavorite, self.numFavorites);
 }
 
-- (NSNumber *)numID {
-    return [self.data valueOrNilForKeyPath:@"id_str"];
-}
 
 + (NSMutableArray *)tweetsWithArray:(NSArray *)array {
     NSMutableArray *tweets = [[NSMutableArray alloc] initWithCapacity:array.count];

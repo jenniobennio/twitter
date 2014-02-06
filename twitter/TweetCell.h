@@ -16,6 +16,7 @@
 @property (nonatomic, weak) IBOutlet UILabel *handleLabel;
 @property (nonatomic, weak) IBOutlet UILabel *timeLabel;
 @property (nonatomic, weak) IBOutlet UILabel *tweetLabel;
+@property (weak, nonatomic) IBOutlet UILabel *retweetLabel;
 
 @property (weak, nonatomic) IBOutlet UIButton *replyButton;
 @property (weak, nonatomic) IBOutlet UIButton *retweetButton;
