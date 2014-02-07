@@ -9,6 +9,7 @@
 #import "TweetCell.h"
 #import "Tweet.h"
 #import "NewVC.h"
+#import "UIImage+mask.h"
 
 @implementation TweetCell
 
@@ -32,24 +33,25 @@
     NSLog(@"Reply");
 }
 
+
 - (IBAction)onRetweetButton:(id)sender {
     [self.tweet onRetweet];
-    if (!self.tweet.isRetweet) {  //self.retweetButton.titleLabel.font == [UIFont boldSystemFontOfSize:12.0f]) {
-        self.retweetButton.titleLabel.font = [UIFont systemFontOfSize:12.0f];
+    if (!self.tweet.isRetweet) {
+        [self.retweetButton setImage:[UIImage imageNamed:@"02-redo.png"] forState:UIControlStateNormal];
     }
     else {
-        self.retweetButton.titleLabel.font = [UIFont boldSystemFontOfSize:12.0f];
+        [self.retweetButton setImage:[self.retweetButton.imageView.image maskWithColor:[UIColor blueColor]] forState:UIControlStateNormal];
     }
     
 }
 
 - (IBAction)onFavoriteButton:(id)sender {
     [self.tweet onFavorite];
-    if (!self.tweet.isFavorite) { //self.favoriteButton.titleLabel.font == [UIFont boldSystemFontOfSize:12.0f]) {
-        self.favoriteButton.titleLabel.font = [UIFont systemFontOfSize:12.0f];
+    if (!self.tweet.isFavorite) {
+        [self.favoriteButton setImage:[UIImage imageNamed:@"28-star.png"] forState:UIControlStateNormal];
     }
     else {
-        self.favoriteButton.titleLabel.font = [UIFont boldSystemFontOfSize:12.0f];
+        [self.favoriteButton setImage:[self.favoriteButton.imageView.image maskWithColor:[UIColor yellowColor]] forState:UIControlStateNormal];
     }
 }
 @end

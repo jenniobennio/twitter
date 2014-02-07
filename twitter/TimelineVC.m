@@ -11,6 +11,8 @@
 #import "TweetVC.h"
 #import "Tweet.h"
 #import "NewVC.h"
+#import "UIImage+mask.h"
+
 
 @interface TimelineVC () <TweetVCDelegate, NewVCDelegate>
 
@@ -122,15 +124,12 @@
     
     // cell.favoriteButton.hidden = YES;
     if (tweet.isFavorite)
-        cell.favoriteButton.titleLabel.font = [UIFont boldSystemFontOfSize:12.0f];
-    else
-        cell.favoriteButton.titleLabel.font = [UIFont systemFontOfSize:12.0f];
+        [cell.favoriteButton setImage:[cell.favoriteButton.imageView.image maskWithColor:[UIColor yellowColor]] forState:UIControlStateNormal];
     
     // cell.retweetButton.hidden = YES;
     if (tweet.isRetweet)
-        cell.retweetButton.titleLabel.font = [UIFont boldSystemFontOfSize:12.0f];
-    else
-        cell.retweetButton.titleLabel.font = [UIFont systemFontOfSize:12.0f];
+        [cell.retweetButton setImage:[cell.retweetButton.imageView.image maskWithColor:[UIColor blueColor]] forState:UIControlStateNormal];
+
     
     // Infinite loading
 //    TwitterClient *client
@@ -193,7 +192,7 @@
 
 - (void)reload {
     [[TwitterClient instance] homeTimelineWithCount:self.tweets.count sinceId:nil maxId:nil success:^(AFHTTPRequestOperation *operation, id response) {
-        NSLog(@"%@", response);
+        // NSLog(@"%@", response);
         self.tweets = [Tweet tweetsWithArray:response];
         [self.tableView reloadData];
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -206,7 +205,7 @@
     Tweet *lastTweet = self.tweets[self.tweets.count-1];
     NSString *maxId = [NSString stringWithFormat:@"%lld",[lastTweet.numID longLongValue] - 1];
     [[TwitterClient instance] homeTimelineWithCount:20 sinceId:nil maxId:maxId success:^(AFHTTPRequestOperation *operation, id response) {
-        NSLog(@"%@", response);
+        // NSLog(@"%@", response);
         [self.tweets addObjectsFromArray:[Tweet tweetsWithArray:response]];
         [self.tableView reloadData];
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {

@@ -8,6 +8,8 @@
 
 #import "TweetVC.h"
 #import "NewVC.h"
+#import "UIImage+mask.h"
+
 
 @interface TweetVC ()
 @property (weak, nonatomic) IBOutlet UIButton *replyButton;
@@ -40,6 +42,7 @@
     
     self.navigationController.navigationBar.translucent = NO;
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Reply" style:UIBarButtonItemStylePlain target:self action:@selector(onReplyButton)];
+
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -53,9 +56,12 @@
     self.retweetLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numRetweets];
     self.favoriteLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numFavorites];
     if (self.tweet.isFavorite)
-        self.favoriteButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
+        [self.favoriteButton setImage:[self.favoriteButton.imageView.image maskWithColor:[UIColor yellowColor]] forState:UIControlStateNormal];
+//        self.favoriteButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
     if (self.tweet.isRetweet)
-        self.retweetButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
+        [self.retweetButton setImage:[self.retweetButton.imageView.image maskWithColor:[UIColor blueColor]] forState:UIControlStateNormal];
+
+//        self.retweetButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
 }
 
 -(void) viewWillDisappear:(BOOL)animated {
@@ -74,13 +80,15 @@
     if (self.tweet.isRetweet) { //self.retweetButton.titleLabel.font == [UIFont boldSystemFontOfSize:15.0f]) {
         [self.tweet onRetweet];
         if (!self.tweet.isRetweet)
-            self.retweetButton.titleLabel.font = [UIFont systemFontOfSize:15.0f];
+            [self.retweetButton setImage:[UIImage imageNamed:@"02-redo.png"] forState:UIControlStateNormal];
+//            self.retweetButton.titleLabel.font = [UIFont systemFontOfSize:15.0f];
         self.retweetLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numRetweets];
 
     } else {
         [self.tweet onRetweet];
         if (self.tweet.isRetweet)
-            self.retweetButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
+            [self.retweetButton setImage:[self.retweetButton.imageView.image maskWithColor:[UIColor blueColor]] forState:UIControlStateNormal];
+//            self.retweetButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
         self.retweetLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numRetweets];
     }
 }
@@ -89,14 +97,16 @@
     if (self.tweet.isFavorite) { //self.favoriteButton.titleLabel.font == [UIFont boldSystemFontOfSize:15.0f]) {
         [self.tweet onFavorite];
         if (!self.tweet.isFavorite)
-            self.favoriteButton.titleLabel.font = [UIFont systemFontOfSize:15.0f];
+            [self.favoriteButton setImage:[UIImage imageNamed:@"28-star.png"] forState:UIControlStateNormal];
+//            self.favoriteButton.titleLabel.font = [UIFont systemFontOfSize:15.0f];
         self.favoriteLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numFavorites];
 
 
     } else {
         [self.tweet onFavorite];
         if (self.tweet.isFavorite)
-            self.favoriteButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
+            [self.favoriteButton setImage:[self.favoriteButton.imageView.image maskWithColor:[UIColor yellowColor]] forState:UIControlStateNormal];
+//            self.favoriteButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
         self.favoriteLabel.text = [NSString stringWithFormat:@"%d",self.tweet.numFavorites];
     }
 }
